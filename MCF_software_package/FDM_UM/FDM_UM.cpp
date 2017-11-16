@@ -742,7 +742,7 @@ int main() {
 			if (Gtable[link].size()==0) continue;
 			output << names[src_node] + "-eth" + to_string(src_port) << " " << names[dst_node] + "-eth" + to_string(dst_port) << "\tnum_of_flow:" << Gtable[link].size() << endl;
 			for (auto it : Gtable[link]) {
-				output << "\t\t" << it.first << " " << it.second << endl;
+				output << "\t\t" << it.first << " " << it.second << IP_type[it.first] << endl;
 			}
 		}
 
