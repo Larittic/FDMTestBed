@@ -18,7 +18,6 @@ int main() {
 	vector<vector<int>> mptcp_host_ship_connect;
 	vector<vector<int>> udp_host_ship_connect;
 	vector<vector<int>> connectivity;
-	vector<string> host_type;
 	int count_link = 0;
 	vector<int> ship_sat;
 	vector<vector<double>> requests;
@@ -219,7 +218,6 @@ int main() {
 		}
 
 		ship_sat.resize(n_ship, 0);
-		host_type.resize(n_host, "");
 
 		for (int i = 0; i < n_ship; i++) {
 			for (int j = 0; j < n_sat; j++) {
@@ -245,7 +243,6 @@ int main() {
 			config >> srcship >> destship >> demand;
 			int srcid = tab[srcship];
 			mptcp_host_ship_connect[srcship].push_back(host_ship_connect[srcship][tab[srcship]]);
-			host_type[host_ship_connect[srcship][tab[srcship]]] = "MPTCP";
 			tab[srcship]++;
 			mptcp_requests[host_ship_connect[srcship][srcid]][host_ship_connect[destship].back()] = demand;
 			srcDest[host_ship_connect[srcship][srcid]] = host_ship_connect[destship].back();
@@ -258,7 +255,6 @@ int main() {
 			config >> srcship >> destship >> demand;
 			int srcid = tab[srcship];
 			udp_host_ship_connect[srcship].push_back(host_ship_connect[srcship][tab[srcship]]);
-			host_type[host_ship_connect[srcship][tab[srcship]]] = "UDP";
 			tab[srcship]++;
 			udp_requests[host_ship_connect[srcship][srcid]][host_ship_connect[destship].back()] = demand;
 			srcDest[host_ship_connect[srcship][srcid]] = host_ship_connect[destship].back();
@@ -279,7 +275,7 @@ int main() {
 		}
 	}
 
-	/* ### Debug - Read topology from file ### 
+	/* ### Debug - Read topology from file ###
 	cout << n_ship << " " << n_sat << " " << n_host << " " << n_src_host << " " << n_mptcp_host << " " << n_udp_host << endl;
 	cout << "host_ship_connect" << endl;
 	for (auto &r : host_ship_connect) {
@@ -308,8 +304,6 @@ int main() {
 		for (auto &c : r) cout << c << " ";
 		cout << endl;
 	}
-	cout << "host_type" << endl;
-	for (auto &c : host_type) cout << c << endl;
 	cout << "udp_requests" << endl;
 	for (auto &r : udp_requests) {
 		for (auto &c : r) cout << c << " ";
@@ -498,8 +492,6 @@ int main() {
 	//define per-link hashtable to store flows
 	vector<unordered_map<string, double>> Gtable(nl), Etable(nl);
 
-	unordered_map<string, string> IP_type;
-
 	for (int i = 0; i < n_ship; i++) {
 		int ship = n_host + i;
 		for (int j = 0; j < host_ship_connect[i].size() - 1; j++) {
@@ -509,7 +501,6 @@ int main() {
 				string key = to_string(host) + " " + to_string(sat);
 				string value = "10.0." + to_string(host+1) + "." + to_string(k);
 				IPtable[key] = value;
-				IP_type[value] = host_type[host];
 			}
 		}
 	}
@@ -599,8 +590,6 @@ int main() {
 			if (udp_Req[i][j] > 0) cout << i << " " << j << " " << udp_Req[i][j] << endl;
 		}
 	}
-	cout << "IP_type" << endl;
-	for (auto &t : IP_type) cout << t.first << " " << t.second << endl;
 	cout << TotReq << endl;
 	return 0;
 	*/
@@ -667,14 +656,6 @@ int main() {
 	 	//printf("%f\n", PreviousDelay);
 		count++;
 	}
-
-
-	/*#######################################################
-	##					Output result					   ##
-	#########################################################
-	*/
-
-
 	if(print) {
 		//output<<("\n");
 		//add IP
@@ -778,9 +759,137 @@ int main() {
 	 	//printf("current delay is %f\n", CurrentDelay);
 		//printf("current count is %d\n", count);
 	}
-	/* Currently not covering infeasible solution */
 	else {
-		cout << "Problem is infeasible.\n";
+		//Run Max-Min algorithm, binary search for feasible solution
+
+		double max_request = 0, min_request = 0, mid;
+		//initialize request for infeasible problem
+		for (int i = 0; i < nn; i++) {
+			for (int n = 0; n < nn; n++) {
+				max_request = max(max_request, Req[i][n]);
+			}
+		}
+		while ((max_request - min_request) > 0.1) {
+			print = 1;
+			mid = min_request + (max_request - min_request) / 2;
+			for (int i = 0; i < nn; i++) {
+				for (int n = 0; n < nn; n++) {
+					if (Req[i][n] > 0) {
+						MM_Req[i][n] = min(Req[i][n], mid);
+					}
+				}
+			}
+
+			TotReq = 0;
+			PreviousDelay = INFINITY;
+
+			for (int i = 0; i < nn; i++) {
+				for (int n = 0; n < nn; n++) {
+					TotReq += MM_Req[i][n];
+				}
+			}
+			for (int i = 0; i < nl; i++) {
+				Gflow[i] = 0;
+			}
+			SetLinkLens(nl, Gflow, Cap, MsgLen, FDlen, Cost);
+			SetSP(nn, link, End2, FDlen, Adj, SPdist, SPpred);
+			LoadLinks(nn, nl, MM_Req, SPpred, End1, Gflow,Etable);
+			Aresult = AdjustCaps(nl, Gflow, Cap, NewCap);
+			if (Aresult == 1)
+				Aflag = 0;
+			else
+				Aflag = 1;
+			CurrentDelay = CalcDelay(nl, Gflow, NewCap, MsgLen, TotReq, Cost);
+			count = 0;
+			while (Aflag || (CurrentDelay < PreviousDelay*(1 - EPSILON))) {
+				SetLinkLens(nl, Gflow, NewCap, MsgLen, FDlen, Cost);
+				SetSP(nn, link, End2, FDlen, Adj, SPdist, SPpred);
+				LoadLinks(nn, nl, MM_Req, SPpred, End1, Eflow,Etable);
+				PreviousDelay = CalcDelay(nl, Gflow, NewCap, MsgLen, TotReq, Cost);
+				Superpose(nl, Eflow, Gflow, NewCap, TotReq, MsgLen, Cost, Gtable, Etable);
+				CurrentDelay = CalcDelay(nl, Gflow, NewCap, MsgLen, TotReq, Cost);
+
+				if (Aflag) {
+					Aresult = AdjustCaps(nl, Gflow, Cap, NewCap);
+					if (Aresult == 1)
+						Aflag = 0;
+					else
+						Aflag = 1;
+				}
+				//judge whether the problem is feasible
+				/*double max_FD_len = 0, min_FD_len = INFINITY;
+				for (int i = 0; i < nl; i++) {
+					if (FDlen[i] > 0) {
+						max_FD_len = max(max_FD_len, FDlen[i]);
+						min_FD_len = min(min_FD_len, FDlen[i]);
+					}
+				}*/
+				if ((Aflag == 1 && (CurrentDelay >= PreviousDelay*(1 - EPSILON)))||count>=100000) {
+					//if ((Aflag == 1 && (max_FD_len - min_FD_len)<EPSILON) || count == 100) {
+						//printf("The problem becomes infeasible.\n");
+					print = 0;
+					break;
+				}
+				count++;
+			}
+			output << "mid is " << mid << endl;
+			if (print) {
+				//feasible
+
+				min_request = mid;
+			}
+			else
+				max_request = mid;
+
+			//increase the MM_Req
+			/*for(i = 0; i < nn; i++) {
+				for(n = 0; n < nn; n++) {
+					MM_Req[i][n] = min(Req[i][n], MM_Req[i][n] + STEP);
+
+				}
+			}
+			if(print == 0) {
+				for(i = 0; i < nl; i++) {
+					printf("When the problem is feasible Gflow[%d] = %f\n", i, Pflow[i]);
+				}
+			}	*/
+			if (print) {
+				for (int i = 0; i < nl; i++) {
+					Pflow[i] = Gflow[i];
+				}
+			}
+		}
+
+		//count  traffic at each ship
+		for (auto u : ships) {
+			double sum = 0;
+			output << "Ship " << u << ":\n";
+			for (auto l : adj[u]) {
+				if (Pflow[l] > 0) {
+					output << "Usage at sat " << End2[l] - n_ship << " is " << Pflow[l] << "\n";
+					sum += Pflow[l];
+				}
+			}
+			output << "Total out going flow at ship " << u << " is " << sum << endl;
+
+			sum = 0;
+			int dest = srcDest[u];
+			for (int i = 0; i < nl; i++) {
+				if (End2[i] == dest) {
+					output << "Downlink at sat " << End1[i] - n_ship - n_sat << " is " << Pflow[i] << "\n";
+					sum += Pflow[i];
+				}
+			}
+			output << "Total in comming flow at ship " << dest << " is " << sum << endl << endl;
+		}
+		//count traffic at each satellite
+		//for (auto s : sats) {
+		//	for (auto l : adj[s]) {
+		//		output << "Total load at sat " << s << " is " << Pflow[l] << "\n";
+		//	}
+		//}
+
+		cout << "Problem is infeasible. Max-Min solution in allocation.txt!\n";
 	}
 
 	output.close();
