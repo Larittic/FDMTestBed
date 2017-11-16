@@ -787,7 +787,7 @@ int main() {
 	//recycle
 	delete[] End1, End2, Cap, Gflow, Eflow, Pflow, FDlen, NewCap, Cost;
 	for (int i = 0; i < nn; i++) {
-		delete[] Adj[i], Req[i], MM_Req[i], SPdist[i], SPpred[i];
+		delete[] Adj[i], Req[i], MM_Req[i], mptcp_Req[i], mptcp_MM_Req[i], udp_Req[i], udp_MM_Req[i], SPdist[i], SPpred[i];
 	}
 	delete[] Adj, Req, MM_Req, SPdist, SPpred;
 
