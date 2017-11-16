@@ -15,6 +15,8 @@ int main() {
 
 	int n_ship, n_sat, n_host, n_src_host, n_mptcp_host, n_udp_host;
 	vector<vector<int>> host_ship_connect;
+	vector<vector<int>> mptcp_host_ship_connect;
+	vector<vector<int>> udp_host_ship_connect;
 	vector<vector<int>> connectivity;
 	int count_link = 0;
 	vector<int> ship_sat;
@@ -197,6 +199,8 @@ int main() {
 		n_host = 0;
 
 		host_ship_connect.resize(n_ship);
+		mptcp_host_ship_connect.resize(n_ship);
+		udp_host_ship_connect.resize(n_ship);
 		connectivity.resize(n_ship, vector<int>(n_sat, 0));
 		//requests.resize(n_ship, vector<double>(n_ship, 0));
 		uplink_capacities.resize(n_ship, vector<double>(n_sat, 0));
@@ -238,6 +242,7 @@ int main() {
 		for (int i = 0; i < n_mptcp_host; i++) {
 			config >> srcship >> destship >> demand;
 			int srcid = tab[srcship];
+			mptcp_host_ship_connect[srcship].push_back(host_ship_connect[srcship][tab[srcship]]);
 			tab[srcship]++;
 			mptcp_requests[host_ship_connect[srcship][srcid]][host_ship_connect[destship].back()] = demand;
 			srcDest[host_ship_connect[srcship][srcid]] = host_ship_connect[destship].back();
@@ -249,6 +254,7 @@ int main() {
 		for (int i = 0; i < n_udp_host; i++) {
 			config >> srcship >> destship >> demand;
 			int srcid = tab[srcship];
+			udp_host_ship_connect[srcship].push_back(host_ship_connect[srcship][tab[srcship]]);
 			tab[srcship]++;
 			udp_requests[host_ship_connect[srcship][srcid]][host_ship_connect[destship].back()] = demand;
 			srcDest[host_ship_connect[srcship][srcid]] = host_ship_connect[destship].back();
@@ -273,6 +279,16 @@ int main() {
 	cout << n_ship << " " << n_sat << " " << n_host << " " << n_src_host << " " << n_mptcp_host << " " << n_udp_host << endl;
 	cout << "host_ship_connect" << endl;
 	for (auto &r : host_ship_connect) {
+		for (auto &c : r) cout << c << " ";
+		cout << endl;
+	}
+	cout << "mptcp_host_ship_connect" << endl;
+	for (auto &r : mptcp_host_ship_connect) {
+		for (auto &c : r) cout << c << " ";
+		cout << endl;
+	}
+	cout << "udp_host_ship_connect" << endl;
+	for (auto &r : udp_host_ship_connect) {
 		for (auto &c : r) cout << c << " ";
 		cout << endl;
 	}
