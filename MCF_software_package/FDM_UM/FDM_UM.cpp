@@ -506,9 +506,14 @@ int main() {
 	}
 
 	double** Req=new double* [nn], **MM_Req=new double* [nn], ** SPdist=new double* [nn];
+	double** mptcp_Req = new double* [nn], **mptcp_MM_Req = new double* [nn];
+	double** udp_Req = new double* [nn], **udp_MM_Req = new double* [nn];
+	
 	for (int i = 0; i < nn; i++) {
-		Req[i] = new double[nn];
-		MM_Req[i] = new double[nn];
+		mptcp_Req[i] = new double[nn];
+		mptcp_MM_Req[i] = new double[nn];
+		udp_Req[i] = new double[nn];
+		udp_MM_Req[i] = new double[nn];
 		SPdist[i] = new double[nn];
 	}
 
@@ -544,15 +549,20 @@ int main() {
 	//MM_Req is for Max-Min when infeasible
 	for(int i = 0; i < nn; i++) {
 		for(int n = 0; n < nn; n ++) {
-			Req[i][n] = 0;
-			MM_Req[i][n] = 0;
+			mptcp_Req[i][n] = 0;
+			mptcp_MM_Req[i][n] = 0;
+			udp_Req[i][n] = 0;
+			udp_MM_Req[i][n] = 0;
 		}
 	}
 
 	for (int i = 0; i < n_host; i++) {
 		for (int j = 0; j < n_host; j++) {
-			if (requests[i][j] > 0) {
-				Req[i][j] = requests[i][j];
+			if (mptcp_requests[i][j] > 0) {
+				mptcp_Req[i][j] = mptcp_requests[i][j];
+			}
+			if (udp_requests[i][j] > 0) {
+				udp_Req[i][j] = udp_requests[i][j];
 			}
 		}
 	}
@@ -560,13 +570,16 @@ int main() {
 
 	for(int i = 0; i < nn; i++) {
 		for(int n = 0; n < nn; n ++) {
-			TotReq += Req[i][n];
+			TotReq += (mptcp_Req[i][n] + udp_Req[i][n]);
 		}
 	}
 	for(int i = 0; i < nl; i ++) {
 		Gflow[i] = 0;
 	}
 
+	/* ### Debug - Topology Builder ###
+	return 0;
+	*/
 
 	/*#######################################################
 	##					FDM algorithm					   ##
