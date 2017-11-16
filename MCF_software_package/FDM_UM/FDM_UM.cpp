@@ -1,4 +1,4 @@
-#include "fdm.h"
+#include "fdm_um.h"
 #include<fstream>
 #include<iostream>
 #include <string>
@@ -13,12 +13,14 @@ int main() {
 	cin >> loop;
 	cin.ignore();
 
-	int n_ship, n_sat, n_host, n_src_host;
+	int n_ship, n_sat, n_host, n_src_host, n_mptcp_host, n_udp_host;
 	vector<vector<int>> host_ship_connect;
 	vector<vector<int>> connectivity;
 	int count_link = 0;
 	vector<int> ship_sat;
 	vector<vector<double>> requests;
+	vector<vector<double>> mptcp_requests;
+	vector<vector<double>> udp_requests;
 	vector<vector<double>> uplink_capacities;
 	vector<double> sat_capacities;
 	vector<vector<double>> downlink_capacities;
@@ -224,17 +226,31 @@ int main() {
 		}
 
 		n_src_host = n_host - n_ship;
-		requests.resize(n_host, vector<double>(n_host, 0));
-		//TODO: define input format for host-to-host request
-		//ship to ship, total n_src_host line
+
+		// Auxiliary variables for requests input
 		vector<int> tab(n_ship, 0);
-		for (int i = 0; i < n_src_host; i++) {
-			int srcship, destship;
-			double demand;
+		int srcship, destship;
+		double demand;
+
+		// Input MPTCP requests
+		config >> n_mptcp_host;
+		mptcp_requests.resize(n_host, vector<double>(n_host, 0));
+		for (int i = 0; i < n_mptcp_host; i++) {
 			config >> srcship >> destship >> demand;
 			int srcid = tab[srcship];
 			tab[srcship]++;
-			requests[host_ship_connect[srcship][srcid]][host_ship_connect[destship].back()] = demand;
+			mptcp_requests[host_ship_connect[srcship][srcid]][host_ship_connect[destship].back()] = demand;
+			srcDest[host_ship_connect[srcship][srcid]] = host_ship_connect[destship].back();
+		}
+
+		// Input UDP requests
+		config >> n_udp_host;
+		udp_requests.resize(n_host, vector<double>(n_host, 0));
+		for (int i = 0; i < n_udp_host; i++) {
+			config >> srcship >> destship >> demand;
+			int srcid = tab[srcship];
+			tab[srcship]++;
+			udp_requests[host_ship_connect[srcship][srcid]][host_ship_connect[destship].back()] = demand;
 			srcDest[host_ship_connect[srcship][srcid]] = host_ship_connect[destship].back();
 		}
 
@@ -253,6 +269,46 @@ int main() {
 		}
 	}
 
+	/* ### Debug - Read topology from file ###
+	cout << n_ship << " " << n_sat << " " << n_host << " " << n_src_host << " " << n_mptcp_host << " " << n_udp_host << endl;
+	cout << "host_ship_connect" << endl;
+	for (auto &r : host_ship_connect) {
+		for (auto &c : r) cout << c << " ";
+		cout << endl;
+	}
+	cout << "connectivity" << endl;
+	for (auto &r : connectivity) {
+		for (auto &c : r) cout << c << " ";
+		cout << endl;
+	}
+	cout << "ship_sat" << endl;
+	for (auto &c : ship_sat) cout << c << endl;
+	cout << "mptcp_requests" << endl;
+	for (auto &r : mptcp_requests) {
+		for (auto &c : r) cout << c << " ";
+		cout << endl;
+	}
+	cout << "udp_requests" << endl;
+	for (auto &r : udp_requests) {
+		for (auto &c : r) cout << c << " ";
+		cout << endl;
+	}
+	cout << "uplink_capacities" << endl;
+	for (auto &r : uplink_capacities) {
+		for (auto &c : r) cout << c << " ";
+		cout << endl;
+	}
+	cout << "sat_capacities" << endl;
+	for (auto &c : sat_capacities) cout << c << endl;
+	cout << "downlink_capacities" << endl;
+	for (auto &r : downlink_capacities) {
+		for (auto &c : r) cout << c << " ";
+		cout << endl;
+	}
+	cout << "srcDest" << endl;
+	for (auto &c : srcDest) cout << c.first << " " << c.second << endl;
+	return 0;
+	*/
 
 	/*#######################################################
 	##					Topology Builder				   ##
@@ -476,7 +532,6 @@ int main() {
 			MM_Req[i][n] = 0;
 		}
 	}
-
 
 	for (int i = 0; i < n_host; i++) {
 		for (int j = 0; j < n_host; j++) {
