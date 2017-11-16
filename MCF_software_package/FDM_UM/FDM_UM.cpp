@@ -577,7 +577,20 @@ int main() {
 		Gflow[i] = 0;
 	}
 
-	/* ### Debug - Topology Builder ###
+	/* ### Debug - Topology Builder ### 
+	cout << "mptcp_Req" << endl;
+	for (int i = 0; i < nn; i++) {
+		for (int j = 0; j < nn; j++) {
+			if (mptcp_Req[i][j] > 0) cout << i << " " << j << " " << mptcp_Req[i][j] << endl;
+		}
+	}
+	cout << "udp_Req" << endl;
+	for (int i = 0; i < nn; i++) {
+		for (int j = 0; j < nn; j++) {
+			if (udp_Req[i][j] > 0) cout << i << " " << j << " " << udp_Req[i][j] << endl;
+		}
+	}
+	cout << TotReq << endl;
 	return 0;
 	*/
 
