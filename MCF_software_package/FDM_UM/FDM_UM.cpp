@@ -698,16 +698,27 @@ int main() {
 		count++;
 	}
 
+	// Integrate mptcp_Gtable and udp_Gtable
+	for (int i = 0; i < nl; i++) {
+		Gtable[i].clear();
+		for (auto it : mptcp_Gtable[i]) Gtable[i][it.first] = it.second;
+		for (auto it : udp_Gtable[i]) Gtable[i][it.first] = it.second;
+	}
 
 	/* ### Debug - FDM_UM algorithm ### 
 	cout << "FDM_UM finished!" << endl;
 	cout << "Gflow" << endl;
 	for (int i = 0; i < nl; i++) cout << "Link " << i << ": " << Gflow[i] << "/" << Cap[i] << endl;
 	cout << endl;
-	cout << endl;
+	cout << "Gtable" << endl;
+	for (int i = 0; i < nl; i++) {
+		cout << "Link " << i << endl;
+		for (auto it : Gtable[i])  cout << it.first << " " << it.second << endl;
+	}
 	return 0;
 	*/
 
+	
 	/*#######################################################
 	##					Output result					   ##
 	#########################################################
