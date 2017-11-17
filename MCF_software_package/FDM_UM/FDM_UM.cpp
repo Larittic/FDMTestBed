@@ -10,8 +10,11 @@ int main() {
 	int choice=1,loop;
 	//cout << "Choose 1 to provide config file\n choose 0 to randomly generate\n";
 	cout << "choose 1 for loop\n choose 0 for no loop\n";
-	cin >> loop;
-	cin.ignore();
+	/* ### Debug */
+	//cin >> loop;
+	//cin.ignore();
+	loop = 0;
+	
 
 	int n_ship, n_sat, n_host, n_src_host, n_mptcp_host, n_udp_host;
 	vector<vector<int>> host_ship_connect;
@@ -187,7 +190,11 @@ int main() {
 
 		string configFile;
 		cout << "config filename: ";
-		getline(cin,configFile);
+
+		/* ### Debug ### */
+		//getline(cin,configFile);
+		configFile = "testcase_um_0.txt";
+
 		ifstream config(configFile);
 		if (!config.is_open()) {
 			cout << "file cannot be opened" << endl;
@@ -347,7 +354,11 @@ int main() {
 
 	string outputFile;
 	cout<<"output filename: ";
-	getline(cin,outputFile);
+
+	/* ### Debug ### */
+	//getline(cin,outputFile);
+	outputFile = "output_0.txt";
+
 	ofstream output;
 	output.open(outputFile);
 
@@ -497,6 +508,8 @@ int main() {
 
 	//define per-link hashtable to store flows
 	vector<unordered_map<string, double>> Gtable(nl), Etable(nl);
+	vector<unordered_map<string, double>> mptcp_Gtable(nl), mptcp_Etable(nl);
+	vector<unordered_map<string, double>> udp_Gtable(nl);
 
 	unordered_map<string, string> IP_type;
 
@@ -530,6 +543,10 @@ int main() {
 	double *Gflow=new double[nl];
 	double *Eflow=new double[nl];
 	double *Pflow=new double[nl];
+
+	double *mptcp_Gflow = new double[nl];
+	double *mptcp_Eflow = new double[nl];
+	double *udp_Gflow = new double[nl];
 
 	int **SPpred = new int*[nn];
 	for (int i = 0; i < nn; i++) {
@@ -584,6 +601,8 @@ int main() {
 	}
 	for(int i = 0; i < nl; i ++) {
 		Gflow[i] = 0;
+		mptcp_Gflow[i] = 0;
+		udp_Gflow[i] = 0;
 	}
 
 	/* ### Debug - Topology Builder ### 
@@ -605,16 +624,24 @@ int main() {
 	return 0;
 	*/
 
+
 	/*#######################################################
-	##					FDM algorithm					   ##
+	##					FDM_UM algorithm				   ##
 	#########################################################
 	*/
 
 
+	cout << "FDM_UM start" << endl;
+
+	LoadUDP(nl, udp_Req, SPpred, End1, Gflow, mptcp_Gflow, udp_Gflow, udp_Gtable, nn, link, End2, FDlen, Adj, SPdist, Cap, MsgLen, Cost);
+	
+	cout << "000" << endl;
 	SetLinkLens(nl, Gflow, Cap, MsgLen, FDlen, Cost);
 	SetSP(nn, link, End2, FDlen, Adj, SPdist, SPpred);
-	LoadLinks(nn, nl, Req, SPpred, End1, Gflow, Gtable);
+	//LoadLinks(nn, nl, Req, SPpred, End1, Gflow, Gtable);
+	LoadMPTCP(nn, nl, mptcp_Req, SPpred, End1, Gflow, mptcp_Gflow, mptcp_Gtable);
 	Aresult = AdjustCaps(nl, Gflow, Cap, NewCap);
+	cout << "111" << endl;
 	if (Aresult == 1)
 		Aflag = 0;
 	else
@@ -624,12 +651,15 @@ int main() {
 	int count = 0;
 	//start to run FDM
 	while(Aflag || (CurrentDelay < PreviousDelay*(1-EPSILON))) {
+		//cout << "222" << endl;
+		LoadUDP(nl, udp_Req, SPpred, End1, Gflow, mptcp_Gflow, udp_Gflow, udp_Gtable, nn, link, End2, FDlen, Adj, SPdist, Cap, MsgLen, Cost);
 		SetLinkLens(nl, Gflow, NewCap, MsgLen, FDlen, Cost);
 		SetSP(nn, link, End2, FDlen, Adj, SPdist, SPpred);
-		LoadLinks(nn, nl, Req, SPpred, End1, Eflow,Etable);
+		//LoadLinks(nn, nl, mptcp_Req, SPpred, End1, mptcp_Eflow, mptcp_Etable);
+		LoadMPTCP(nn, nl, mptcp_Req, SPpred, End1, Eflow, mptcp_Eflow, mptcp_Etable);
 		//previous delay based on current NewCap
 		PreviousDelay = CalcDelay(nl, Gflow, NewCap, MsgLen, TotReq, Cost);
-		Superpose(nl, Eflow, Gflow, NewCap, TotReq, MsgLen, Cost, Gtable, Etable);
+		Superpose(nl, mptcp_Eflow, mptcp_Gflow, udp_Gflow, Gflow, NewCap, TotReq, MsgLen, Cost, mptcp_Gtable, mptcp_Etable);
 		//current delay after superposition
 		CurrentDelay = CalcDelay(nl, Gflow, NewCap, MsgLen, TotReq, Cost);
 
@@ -668,6 +698,15 @@ int main() {
 		count++;
 	}
 
+
+	/* ### Debug - FDM_UM algorithm ### 
+	cout << "FDM_UM finished!" << endl;
+	cout << "Gflow" << endl;
+	for (int i = 0; i < nl; i++) cout << "Link " << i << ": " << Gflow[i] << "/" << Cap[i] << endl;
+	cout << endl;
+	cout << endl;
+	return 0;
+	*/
 
 	/*#######################################################
 	##					Output result					   ##
@@ -785,7 +824,7 @@ int main() {
 
 	output.close();
 	//recycle
-	delete[] End1, End2, Cap, Gflow, Eflow, Pflow, FDlen, NewCap, Cost;
+	delete[] End1, End2, Cap, Gflow, Eflow, Pflow, mptcp_Gflow, mptcp_Eflow, udp_Gflow, FDlen, NewCap, Cost;
 	for (int i = 0; i < nn; i++) {
 		delete[] Adj[i], Req[i], MM_Req[i], mptcp_Req[i], mptcp_MM_Req[i], udp_Req[i], udp_MM_Req[i], SPdist[i], SPpred[i];
 	}
