@@ -13,6 +13,7 @@ int main() {
 	/* ### Debug */
 	//cin >> loop;
 	//cin.ignore();
+	cout << "default: loop = 0\n";
 	loop = 0;
 	
 
@@ -192,8 +193,8 @@ int main() {
 		cout << "config filename: ";
 
 		/* ### Debug ### */
-		//getline(cin,configFile);
-		configFile = "testcase_um_0.txt";
+		getline(cin,configFile);
+		//configFile = "testcase_um_0.txt";
 
 		ifstream config(configFile);
 		if (!config.is_open()) {
@@ -356,8 +357,8 @@ int main() {
 	cout<<"output filename: ";
 
 	/* ### Debug ### */
-	//getline(cin,outputFile);
-	outputFile = "output_0.txt";
+	getline(cin,outputFile);
+	//outputFile = "allocation.txt";
 
 	ofstream output;
 	output.open(outputFile);
@@ -631,17 +632,14 @@ int main() {
 	*/
 
 
-	cout << "FDM_UM start" << endl;
+	//cout << "FDM_UM start" << endl;
 
 	LoadUDP(nl, udp_Req, SPpred, End1, Gflow, mptcp_Gflow, udp_Gflow, udp_Gtable, nn, link, End2, FDlen, Adj, SPdist, Cap, MsgLen, Cost);
-	
-	cout << "000" << endl;
 	SetLinkLens(nl, Gflow, Cap, MsgLen, FDlen, Cost);
 	SetSP(nn, link, End2, FDlen, Adj, SPdist, SPpred);
 	//LoadLinks(nn, nl, Req, SPpred, End1, Gflow, Gtable);
 	LoadMPTCP(nn, nl, mptcp_Req, SPpred, End1, Gflow, mptcp_Gflow, mptcp_Gtable);
 	Aresult = AdjustCaps(nl, Gflow, Cap, NewCap);
-	cout << "111" << endl;
 	if (Aresult == 1)
 		Aflag = 0;
 	else
@@ -705,8 +703,9 @@ int main() {
 		for (auto it : udp_Gtable[i]) Gtable[i][it.first] = it.second;
 	}
 
+	//cout << "FDM_UM finished!" << endl;
+
 	/* ### Debug - FDM_UM algorithm ### 
-	cout << "FDM_UM finished!" << endl;
 	cout << "Gflow" << endl;
 	for (int i = 0; i < nl; i++) cout << "Link " << i << ": " << Gflow[i] << "/" << Cap[i] << endl;
 	cout << endl;
@@ -792,7 +791,7 @@ int main() {
 			if (Gtable[link].size()==0) continue;
 			output << names[src_node] + "-eth" + to_string(src_port) << " " << names[dst_node] + "-eth" + to_string(dst_port) << "\tnum_of_flow:" << Gtable[link].size() << endl;
 			for (auto it : Gtable[link]) {
-				output << "\t\t" << it.first << " " << it.second << IP_type[it.first] << endl;
+				output << "\t\t" << it.first << " " << it.second << " " << IP_type[it.first] << endl;
 			}
 		}
 
@@ -824,7 +823,7 @@ int main() {
 		//}
 
 
-		cout << "Problem is feasible. Results in allocation.txt!\n";
+		cout << "Problem is feasible. Results in " << outputFile << endl;
 	 	//printf("current delay is %f\n", CurrentDelay);
 		//printf("current count is %d\n", count);
 	}
