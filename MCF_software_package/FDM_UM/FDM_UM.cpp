@@ -512,8 +512,6 @@ int main() {
 	vector<unordered_map<string, double>> mptcp_Gtable(nl), mptcp_Etable(nl);
 	vector<unordered_map<string, double>> udp_Gtable(nl);
 
-	unordered_map<string, string> IP_type;
-
 	for (int i = 0; i < n_ship; i++) {
 		int ship = n_host + i;
 		for (int j = 0; j < host_ship_connect[i].size() - 1; j++) {
@@ -523,7 +521,6 @@ int main() {
 				string key = to_string(host) + " " + to_string(sat);
 				string value = "10.0." + to_string(host+1) + "." + to_string(k);
 				IPtable[key] = value;
-				IP_type[value] = host_type[host];
 			}
 		}
 	}
@@ -619,8 +616,6 @@ int main() {
 			if (udp_Req[i][j] > 0) cout << i << " " << j << " " << udp_Req[i][j] << endl;
 		}
 	}
-	cout << "IP_type" << endl;
-	for (auto &t : IP_type) cout << t.first << " " << t.second << endl;
 	cout << TotReq << endl;
 	return 0;
 	*/
@@ -770,7 +765,7 @@ int main() {
 		//printing ip
 		for (int i = 0; i < n_host; i++) {
 			string key = names[i];
-			output << key << " num_of_ip: " << usedIP[key].size() << endl;
+			output << key << " num_of_ip: " << usedIP[key].size() << " " << host_type[i] << endl;
 			for (auto ip : usedIP[key])
 				output << ip << endl;
 		}
@@ -791,7 +786,7 @@ int main() {
 			if (Gtable[link].size()==0) continue;
 			output << names[src_node] + "-eth" + to_string(src_port) << " " << names[dst_node] + "-eth" + to_string(dst_port) << "\tnum_of_flow:" << Gtable[link].size() << endl;
 			for (auto it : Gtable[link]) {
-				output << "\t\t" << it.first << " " << it.second << " " << IP_type[it.first] << endl;
+				output << "\t\t" << it.first << " " << it.second << endl;
 			}
 		}
 
