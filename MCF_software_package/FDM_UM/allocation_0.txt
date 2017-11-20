@@ -123,12 +123,12 @@ host1 num_of_ip: 2 MPTCP
 10.0.2.1
 host2 num_of_ip: 1 UDP
 10.0.3.1
-host3 num_of_ip: 0 
+host3 num_of_ip: 0 DEST
 host4 num_of_ip: 1 MPTCP
 10.0.5.0
 host5 num_of_ip: 1 MPTCP
 10.0.6.1
-host6 num_of_ip: 0 
+host6 num_of_ip: 0 DEST
 host7 num_of_ip: 1 MPTCP
 10.0.8.0
 host8 num_of_ip: 1 MPTCP
@@ -137,7 +137,7 @@ host9 num_of_ip: 1 UDP
 10.0.10.1
 host10 num_of_ip: 1 UDP
 10.0.11.1
-host11 num_of_ip: 0 
+host11 num_of_ip: 0 DEST
 host12 num_of_ip: 2 MPTCP
 10.0.13.1
 10.0.13.0
@@ -146,7 +146,7 @@ host13 num_of_ip: 1 MPTCP
 host14 num_of_ip: 2 UDP
 10.0.15.0
 10.0.15.1
-host15 num_of_ip: 0 
+host15 num_of_ip: 0 DEST
 host16 num_of_ip: 2 MPTCP
 10.0.17.0
 10.0.17.1
@@ -154,7 +154,7 @@ host17 num_of_ip: 1 MPTCP
 10.0.18.0
 host18 num_of_ip: 1 UDP
 10.0.19.0
-host19 num_of_ip: 0 
+host19 num_of_ip: 0 DEST
 End
 host0-eth0 s1-eth1	num_of_flow:1
 		10.0.1.0 6
@@ -220,47 +220,47 @@ s5-eth7 s6-eth4	num_of_flow:3
 s5-eth8 s8-eth3	num_of_flow:1
 		10.0.17.1 2.1265
 s6-eth5 s9-eth1	num_of_flow:8
-		10.0.19.0 3
-		10.0.17.0 0.873501
-		10.0.13.0 2.55982
-		10.0.18.0 3
-		10.0.1.0 6
-		10.0.5.0 7
 		10.0.15.0 6
+		10.0.19.0 3
+		10.0.13.0 2.55982
+		10.0.5.0 7
+		10.0.1.0 6
+		10.0.17.0 0.873501
+		10.0.18.0 3
 		10.0.2.0 1.16467
 s7-eth4 s10-eth1	num_of_flow:6
 		10.0.15.1 6
 		10.0.8.0 4
-		10.0.13.1 0.440179
+		10.0.14.1 3
 		10.0.6.1 3
 		10.0.9.0 4
-		10.0.14.1 3
+		10.0.13.1 0.440179
 s8-eth4 s11-eth1	num_of_flow:5
+		10.0.10.1 2
 		10.0.11.1 5
 		10.0.2.1 2.83533
-		10.0.10.1 2
 		10.0.3.1 4
 		10.0.17.1 2.1265
 s9-eth2 s12-eth1	num_of_flow:8
-		10.0.19.0 3
-		10.0.17.0 0.873501
-		10.0.13.0 2.55982
-		10.0.18.0 3
-		10.0.1.0 6
-		10.0.5.0 7
 		10.0.15.0 6
+		10.0.19.0 3
+		10.0.13.0 2.55982
+		10.0.5.0 7
+		10.0.1.0 6
+		10.0.17.0 0.873501
+		10.0.18.0 3
 		10.0.2.0 1.16467
 s10-eth2 s13-eth1	num_of_flow:6
 		10.0.15.1 6
 		10.0.8.0 4
-		10.0.13.1 0.440179
+		10.0.14.1 3
 		10.0.6.1 3
 		10.0.9.0 4
-		10.0.14.1 3
+		10.0.13.1 0.440179
 s11-eth2 s14-eth1	num_of_flow:5
+		10.0.10.1 2
 		10.0.11.1 5
 		10.0.2.1 2.83533
-		10.0.10.1 2
 		10.0.3.1 4
 		10.0.17.1 2.1265
 s12-eth2 s15-eth1	num_of_flow:2
@@ -293,8 +293,8 @@ s14-eth4 s19-eth2	num_of_flow:2
 		10.0.11.1 5
 		10.0.2.1 2.83533
 s15-eth3 host3-eth0	num_of_flow:4
-		10.0.17.0 0.873501
 		10.0.10.1 2
+		10.0.17.0 0.873501
 		10.0.17.1 2.1265
 		10.0.5.0 7
 s16-eth3 host6-eth0	num_of_flow:5
