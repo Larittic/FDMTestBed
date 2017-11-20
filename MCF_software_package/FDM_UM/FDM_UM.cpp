@@ -272,6 +272,8 @@ int main() {
 			srcDest[host_ship_connect[srcship][srcid]] = host_ship_connect[destship].back();
 		}
 
+		for (auto& ht : host_type) ht = (ht == ""? "DEST" : ht);
+
 		for (int i = 0; i < n_ship; i++) {
 			for (int j = 0; j < n_sat; j++)
 				config >> uplink_capacities[i][j];
