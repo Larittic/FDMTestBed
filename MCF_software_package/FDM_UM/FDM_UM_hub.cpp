@@ -40,9 +40,9 @@ int main() {
     
 
     /* ### Debug ### */
-    //cout << "config filename: ";
-    //getline(cin,configFile);
-    configFile = "testcase_um_hub_0.txt";
+    cout << "config filename: ";
+    getline(cin,configFile);
+    //configFile = "testcase_um_hub_0.txt";
 
     ifstream config(configFile);
     if (!config.is_open()) {
@@ -463,10 +463,16 @@ int main() {
 		//		min_FD_len = min(min_FD_len, FDlen[i]);
 		//	}
 		//}
-		if((Aflag == 1 && (CurrentDelay >= PreviousDelay*(1-EPSILON)))||count>=100000) {
+		//cout << count << endl;
+		if((Aflag == 1 && (CurrentDelay >= PreviousDelay*(1-EPSILON)))||count>=100) {
 		//if ((Aflag == 1 && (max_FD_len - min_FD_len)<EPSILON)||count==100) {
-			output<<("The problem is infeasible. Now reduce the request.\n");
-			print = 0;
+			if (Aflag == 1) {
+				output<<("The problem is infeasible. Now reduce the request.\n");
+				print = 0;
+			}
+			else {
+				print = 1;
+			}
 			break;
 		}
 
