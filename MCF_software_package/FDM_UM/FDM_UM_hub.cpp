@@ -183,9 +183,9 @@ int main() {
 	
 
     /* ### Debug ### */
-    //cout<<"output filename: ";
-	//getline(cin,outputFile);
-	outputFile = "allocation.txt";
+    cout<<"output filename: ";
+	getline(cin,outputFile);
+	//outputFile = "allocation.txt";
 
 	ofstream output;
 	output.open(outputFile);
@@ -428,9 +428,12 @@ int main() {
 		Aflag = 1;
 	CurrentDelay = CalcDelay(nl, Gflow, NewCap, MsgLen, TotReq, Cost);
 
+	cout << "First CurrentDelay: " << CurrentDelay << endl;
+
 	int count = 0;
 	//start to run FDM
 	while(Aflag || (CurrentDelay < PreviousDelay*(1-EPSILON))) {
+		//cout << count << " CurrentDelay: " << CurrentDelay << endl;
 		//cout << "222" << endl;
 		LoadUDP(nl, udp_Req, SPpred, End1, Gflow, mptcp_Gflow, udp_Gflow, udp_Gtable, nn, link, End2, FDlen, Adj, SPdist, Cap, MsgLen, Cost);
 		SetLinkLens(nl, Gflow, NewCap, MsgLen, FDlen, Cost);
@@ -494,13 +497,14 @@ int main() {
 	//cout << "FDM_UM finished!" << endl;
 
 	/* ### Debug - FDM_UM algorithm ### */
-	cout << "Gflow" << endl;
+	cout << "Gflow:" << endl;
     for (int i = 0; i < nl; i++) {
         if (Cap[i] < INFINITY) {
             cout << "Link " << i << ": " << Gflow[i] << "/" << Cap[i] << endl;
         }
-    }
-    cout << "CurrentDelay: " << CurrentDelay << endl;
+	}
+	cout << "TotReq: " << TotReq << endl;
+    cout << "Final CurrentDelay: " << CurrentDelay << endl;
 	/*cout << "Gtable" << endl;
 	for (int i = 0; i < nl; i++) {
 		cout << "Link " << i << endl;
@@ -537,7 +541,7 @@ int main() {
         //output nodes and links in order
         int i = 0;
         for (; i < n_host; i++) output << "add host: " << names[i] << endl;
-        for (; i < n_host + n_ship; i++) output << "add host: " << names[i] << endl;
+        for (; i < n_host + n_ship; i++) output << "add ship: " << names[i] << endl;
         for (; i < nn - 1; i++) output << "add sat: " << names[i] << endl;
         output << "add hub: " << names[i] << endl;
 		output << "End" << endl;

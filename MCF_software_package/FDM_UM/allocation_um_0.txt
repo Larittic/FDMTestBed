@@ -30,11 +30,11 @@ add host: host12
 add host: host13
 add host: host14
 add host: host15
-add host: s1
-add host: s2
-add host: s3
-add host: s4
-add host: s5
+add ship: s1
+add ship: s2
+add ship: s3
+add ship: s4
+add ship: s5
 add sat: s6
 add sat: s7
 add sat: s8
